@@ -4,12 +4,12 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+		<title>GFT Presenter</title>
 
 		<link rel="stylesheet" href="dist/reset.css">
 		<link rel="stylesheet" href="dist/reveal.css">
 		<link rel="stylesheet" href="dist/theme/black.css">
-
+		<link rel="icon" href="https://www.gft.com/.resources/gft/webresources/img/gft-favicon.ico">
 		<!-- Theme used for syntax highlighted code -->
 		<link rel="stylesheet" href="plugin/highlight/monokai.css">
 
@@ -47,6 +47,15 @@
 			color: white;
 			margin-right: 10px;
         }
+		header > #creativeLabel {
+			color: white;
+			margin-left: 5px;
+			font-family: Verdana, Geneva, Tahoma, sans-serif;
+			font-size: small;			
+        }
+		header > #creativeCheck {
+			margin-left: 5px;			
+        }
 		header > #gftLogo {
             height: 28px;
 			background-color: white;
@@ -61,6 +70,8 @@
 		<header>
 			<img id="gftLogo" src="https://upload.wikimedia.org/wikipedia/de/2/2a/GFT_Technologies_logo.svg">
 			<input type="text" id="questionBox" placeholder="Presentation Description" value="5 Slides explaining the top 5 topics to explain Embedding works on LLMs" name="content"><br>
+			<label id="creativeLabel" for="creativeCheck">Creative?</label> 
+			<input type="checkbox" id="creativeCheck"  value="false">
 			<input type="button" id="askButton" value="Ask" onclick="createPresentation()">
 		</header>
 		<div class="reveal">
@@ -86,10 +97,20 @@
 					slidesArea=document.getElementById('slidesArea');
 					slidesArea.textContent = "loading...";
 					const request = document.getElementById('questionBox').value;
-					const payload = {"messages":[{
+					const creative = document.getElementById('creativeCheck');
+					var payload = {"messages":[{
 						role: "user",
 						content: request
 					}]};
+					
+					if(creative.checked)
+					{
+						payload = {"messages":[{
+							role: "user",
+							content: request,
+							creative: true
+						}]};
+					}
 					try {
 						// Make the POST request
 						const response = await fetch('http://127.0.0.1:8000/presentation-create', {
