@@ -12,29 +12,123 @@
 
 		<!-- Theme used for syntax highlighted code -->
 		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+
+		<style>
+		.reveal h2
+		{
+			text-shadow: 1px 1px 2px black !important;
+		}
+    	header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+            padding: 5px;
+            text-align: center;
+			z-index: 1;
+   			position: fixed;
+    		width: 100%;
+    		margin: 0px;
+        }
+        header > #questionBox {
+            margin-right: 5px;
+			margin-left: 5px;
+			width: 100%;
+			font-size: large;
+			background: black;
+			color: white;
+			font-weight: bold;
+			border-color: black;
+			border-width: 0px;
+        }
+		header > #askButton {
+            font-size: large;
+			background-color: #A23684;
+			color: white;
+			margin-right: 10px;
+        }
+		header > #gftLogo {
+            height: 28px;
+			background-color: white;
+        }
+		body{
+			background: black !important;
+			text-shadow: 1px 1px 2px black !important;
+		}
+		</style>
 	</head>
 	<body>
+		<header>
+			<img id="gftLogo" src="https://upload.wikimedia.org/wikipedia/de/2/2a/GFT_Technologies_logo.svg">
+			<input type="text" id="questionBox" placeholder="Presentation Description" value="5 Slides explaining the top 5 topics to explain Embedding works on LLMs" name="content"><br>
+			<input type="button" id="askButton" value="Ask" onclick="createPresentation()">
+		</header>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$">
+					<section data-markdown data-auto-animate>
+						<textarea data-template data-separator="^\n--\n$" id="slidesArea">
+						## Provide your presentation request above...
+						</textarea>
+					</section>								
+				</section>
 			</div>
 		</div>
-
+		
 		<script src="dist/reveal.js"></script>
 		<script src="plugin/notes/notes.js"></script>
 		<script src="plugin/markdown/markdown.js"></script>
 		<script src="plugin/highlight/highlight.js"></script>
 		<script>
-			// More info about initialization & config:
-			// - https://revealjs.com/initialization/
-			// - https://revealjs.com/config/
-			Reveal.initialize({
-				hash: true,
+			 async function createPresentation() {
+				// Fetch the text from the remote URL
+				try {
+					slidesArea=document.getElementById('slidesArea');
+					slidesArea.textContent = "loading...";
+					const request = document.getElementById('questionBox').value;
+					const payload = {"messages":[{
+						role: "user",
+						content: request
+					}]};
+					try {
+						// Make the POST request
+						const response = await fetch('http://127.0.0.1:8000/presentation-create', {
+							method: 'POST', // or 'PUT'
+							headers: {
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify(payload),
+						});
+						const data = await response.text();
+						slidesArea.textContent = data;
 
-				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
-			});
+						// More info about initialization & config:
+						// - https://revealjs.com/initialization/
+						// - https://revealjs.com/config/
+						Reveal.initialize({
+							hash: true,
+							controls: true,
+							progress: true,
+							hash: false,
+							autoAnimate: true,
+							// Learn about plugins: https://revealjs.com/plugins/
+							plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ],
+							// Options which are passed into marked
+							// See https://marked.js.org/#/USING_ADVANCED.md#options
+							markdown: {
+								smartypants: true
+							}
+						})		
+						// Log the response data to the console
+						console.log('Success:', data);
+					} catch (error) {
+						console.error('Error:', error);
+					}								
+				} catch (error) {
+					console.error('Error:', error);
+				}								
+			 }
+	 
 		</script>
 	</body>
 </html>
