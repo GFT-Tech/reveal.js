@@ -1,37 +1,39 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>GFT Presenter</title>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<link rel="stylesheet" href="dist/reset.css">
-		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css">
-		<link rel="icon" href="https://www.gft.com/.resources/gft/webresources/img/gft-favicon.ico">
-		<!-- Theme used for syntax highlighted code -->
-		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+	<title>GFT Presenter</title>
 
-		<style>
-		.reveal h2
-		{
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/black.css">
+	<link rel="icon" href="https://www.gft.com/.resources/gft/webresources/img/gft-favicon.ico">
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="plugin/highlight/monokai.css">
+
+	<style>
+		.reveal h2 {
 			text-shadow: 1px 1px 2px black !important;
 		}
-    	header {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: black;
-            padding: 5px;
-            text-align: center;
+
+		header {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background-color: black;
+			padding: 5px;
+			text-align: center;
 			z-index: 1;
-   			position: fixed;
-    		width: 100%;
-    		margin: 0px;
-        }
-        header > #questionBox {
-            margin-right: 5px;
+			position: fixed;
+			width: 100%;
+			margin: 0px;
+		}
+
+		header>#questionBox {
+			margin-right: 5px;
 			margin-left: 5px;
 			width: 100%;
 			font-size: large;
@@ -40,116 +42,170 @@
 			font-weight: bold;
 			border-color: black;
 			border-width: 0px;
-        }
-		header > #askButton {
-            font-size: large;
+		}
+
+		header>#askButton {
+			font-size: large;
 			background-color: #A23684;
 			color: white;
 			margin-right: 10px;
-        }
-		header > #creativeLabel {
+		}
+
+		header>#creativeLabel {
 			color: white;
 			margin-left: 5px;
 			font-family: Verdana, Geneva, Tahoma, sans-serif;
-			font-size: small;			
-        }
-		header > #creativeCheck {
-			margin-left: 5px;			
-        }
-		header > #gftLogo {
-            height: 28px;
+			font-size: small;
+			font-weight: bold;
+		}
+
+		header>#creativeCheck {
+			margin-left: 5px;
+			margin-right: 10px;
+		}
+
+		header>#gftLogo {
+			height: 28px;
 			background-color: white;
-        }
-		body{
+		}
+
+		body {
 			background: black !important;
 			text-shadow: 1px 1px 2px black !important;
 		}
-		</style>
-	</head>
-	<body>
-		<header>
-			<img id="gftLogo" src="https://upload.wikimedia.org/wikipedia/de/2/2a/GFT_Technologies_logo.svg">
-			<input type="text" id="questionBox" placeholder="Presentation Description" value="5 Slides explaining the top 5 topics to explain Embedding works on LLMs" name="content"><br>
-			<label id="creativeLabel" for="creativeCheck">Creative?</label> 
-			<input type="checkbox" id="creativeCheck"  value="false">
-			<input type="button" id="askButton" value="Ask" onclick="createPresentation()">
-		</header>
-		<div class="reveal">
-			<div class="slides">
-				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$">
-					<section data-markdown data-auto-animate>
-						<textarea data-template data-separator="^\n--\n$" id="slidesArea">
-						## Provide your presentation request above...
-						</textarea>
-					</section>								
+
+		.loaderBox {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 100vh;
+			margin: 0;
+			padding: 0;
+		}
+
+		.spinner {
+			max-width: 100%;
+			max-height: 100%;
+		}
+
+		.Instruction {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			font-size: xx-large;
+			color: white;
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<img id="gftLogo" src="https://upload.wikimedia.org/wikipedia/de/2/2a/GFT_Technologies_logo.svg">
+		<input type="text" id="questionBox" placeholder="Presentation Description" 
+			onkeydown = "if (event.keyCode == 13) document.getElementById('askButton').click()"
+			value="5 Slides explaining the top 5 topics to explain Embedding works on LLMs" name="content">
+		<label id="creativeLabel" for="creativeCheck">Creative?</label>
+		<input type="checkbox" id="creativeCheck" value="false">
+		<input type="submit" id="askButton" value="Ask" onclick="createPresentation()">
+	</header>
+	<div id="slidesPlaceHolder" class="reveal">
+		<div class="slides">
+			<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$">
+				<section data-markdown>
+					<textarea data-template data-separator="^\n--\n$" id="slidesArea">
+					## Provide your presentation request above...
+					</textarea>
 				</section>
-			</div>
+			</section>
 		</div>
-		
-		<script src="dist/reveal.js"></script>
-		<script src="plugin/notes/notes.js"></script>
-		<script src="plugin/markdown/markdown.js"></script>
-		<script src="plugin/highlight/highlight.js"></script>
-		<script>
-			 async function createPresentation() {
-				// Fetch the text from the remote URL
-				try {
-					slidesArea=document.getElementById('slidesArea');
-					slidesArea.textContent = "loading...";
-					const request = document.getElementById('questionBox').value;
-					const creative = document.getElementById('creativeCheck');
-					var payload = {"messages":[{
+	</div>
+	<div class="loaderBox">
+		<img src="spinner.gif" id="loadingSpinner" class="spinner" style="display: none;" />
+		<H1 class="Instruction" id="instructionLabel" style="display: block;">Provide an presentation request above and
+			click ask...</H1>
+	</div>
+
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
+	<script>
+		async function createPresentation() {
+			spinner = document.getElementById('loadingSpinner');
+			label = document.getElementById('instructionLabel');
+			// Fetch the text from the remote URL
+			try {
+
+				spinner.style.display = 'block';
+				label.style.display = 'none';
+				slidesArea = document.getElementById('slidesArea');
+
+				const request = document.getElementById('questionBox');
+				const creativeLabel = document.getElementById('creativeLabel');
+				const creative = document.getElementById('creativeCheck');
+				const askButton = document.getElementById('askButton');
+				//disabling this for now as RevealJS has no easy way to recreate everything
+				creative.style.display = 'none';
+				askButton.style.display = 'none';
+				creativeLabel.style.display = 'none';
+				request.readOnly = true;
+				var payload = {
+					"messages": [{
 						role: "user",
-						content: request
-					}]};
-					
-					if(creative.checked)
-					{
-						payload = {"messages":[{
+						content: request.value
+					}]
+				};
+
+				if (creative.checked) {
+					payload = {
+						"messages": [{
 							role: "user",
 							content: request,
 							creative: true
-						}]};
-					}
-					try {
-						// Make the POST request
-						const response = await fetch('http://127.0.0.1:8000/presentation-create', {
-							method: 'POST', // or 'PUT'
-							headers: {
-								'Content-Type': 'application/json',
-							},
-							body: JSON.stringify(payload),
-						});
-						const data = await response.text();
-						slidesArea.textContent = data;
+						}]
+					};
+				}
 
-						// More info about initialization & config:
-						// - https://revealjs.com/initialization/
-						// - https://revealjs.com/config/
-						Reveal.initialize({
-							hash: true,
-							controls: true,
-							progress: true,
-							hash: false,
-							autoAnimate: true,
-							// Learn about plugins: https://revealjs.com/plugins/
-							plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ],
-							// Options which are passed into marked
-							// See https://marked.js.org/#/USING_ADVANCED.md#options
-							markdown: {
-								smartypants: true
-							}
-						})		
-						// Log the response data to the console
-						console.log('Success:', data);
-					} catch (error) {
-						console.error('Error:', error);
-					}								
-				} catch (error) {
-					console.error('Error:', error);
-				}								
-			 }
-	 
-		</script>
-	</body>
+				// Make the POST request
+				const response = await fetch('http://127.0.0.1:8000/presentation-create', {
+					method: 'POST', // or 'PUT'
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(payload),
+				});
+				const data = await response.text();
+				slidesArea.textContent = data;
+
+				// More info about initialization & config:
+				// - https://revealjs.com/initialization/
+				// - https://revealjs.com/config/
+				Reveal.initialize({
+					hash: true,
+					controls: true,
+					progress: true,
+					hash: false,
+					autoAnimate: true,
+					slideNumber: "c/t",
+					// Learn about plugins: https://revealjs.com/plugins/
+					plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
+					// Options which are passed into marked
+					// See https://marked.js.org/#/USING_ADVANCED.md#options
+					markdown: {
+						smartypants: true
+					}
+				})
+				spinner.style.display = 'none';
+				// Log the response data to the console
+				console.log('Success:', data);
+
+			} catch (error) {
+				spinner.style.display = 'none';
+				label.style.display = 'block';
+				label.innerText = error;
+				console.error('Error:', error);
+			}
+		}
+
+	</script>
+</body>
+
 </html>
